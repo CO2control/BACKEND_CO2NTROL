@@ -12,8 +12,8 @@ const HABILITAR_OPERACAO_INSERIR = true;
 
 // função para comunicação serial
 const serial = async (
-    valoresSensorAnalogico,
-    valoresSensorDigital,
+    valoresSensorAnalogico
+    // valoresSensorDigital,
 ) => {
 
     // conexão com o banco de dados MySQL
@@ -51,12 +51,12 @@ const serial = async (
     arduino.pipe(new serialport.ReadlineParser({ delimiter: '\r\n' })).on('data', async (data) => {
         console.log(data);
         const valores = data.split(';');
-        const sensorDigital = parseInt(valores[0]);
-        const sensorAnalogico = parseFloat(valores[1]);
+        // const sensorDigital = parseInt(valores[0]);
+        const nivelCO2 = parseFloat(valores[1]);
 
         // armazena os valores dos sensores nos arrays correspondentes
-        valoresSensorAnalogico.push(sensorAnalogico);
-        valoresSensorDigital.push(sensorDigital);
+        valoresnivelCO2.push(nivelCO2);
+        // valoresSensorDigital.push(sensorDigital);
 
         // insere os dados no banco de dados (se habilitado)
         if (HABILITAR_OPERACAO_INSERIR) {
@@ -64,9 +64,9 @@ const serial = async (
             // este insert irá inserir os dados na tabela "medida"
             await poolBancoDados.execute(
                 'INSERT INTO leitura_sensor (nivel_carbono) VALUES (?)',
-                [sensorAnalogico]
+                [nivelCO2]
             );
-            console.log("valores inseridos no banco: ", sensorAnalogico);
+            console.log("valores inseridos no banco: ", nivelCO2);
 
         }
 
@@ -80,8 +80,8 @@ const serial = async (
 
 // função para criar e configurar o servidor web
 const servidor = (
-    valoresSensorAnalogico,
-    valoresSensorDigital
+    valoresSensorAnalogico
+    // valoresSensorDigital
 ) => {
     const app = express();
 
@@ -101,26 +101,26 @@ const servidor = (
     app.get('/sensores/analogico', (_, response) => {
         return response.json(valoresSensorAnalogico);
     });
-    app.get('/sensores/digital', (_, response) => {
-        return response.json(valoresSensorDigital);
-    });
-}
+//     app.get('/sensores/digital', (_, response) => {
+//         return response.json(valoresSensorDigital);
+//     });
+// }
 
 // função principal assíncrona para iniciar a comunicação serial e o servidor web
 (async () => {
     // arrays para armazenar os valores dos sensores
     const valoresSensorAnalogico = [];
-    const valoresSensorDigital = [];
+    // const valoresSensorDigital = [];
 
     // inicia a comunicação serial
     await serial(
         valoresSensorAnalogico,
-        valoresSensorDigital
+        // valoresSensorDigital
     );
 
     // inicia o servidor web
     servidor(
         valoresSensorAnalogico,
-        valoresSensorDigital
+        // valoresSensorDigital
     );
 })();
