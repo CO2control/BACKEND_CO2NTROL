@@ -12,7 +12,7 @@
         <h1>Graphics</h1>
         <div>
             <div style="width: 50%;">
-                <canvas id="sensorAnalogico"></canvas>
+                <canvas id="nivelCO2"></canvas>
             </div>
             <!-- <div style="width: 50%;">
             <canvas id="sensorDigital"></canvas>
@@ -23,7 +23,7 @@
 
 
     <script>
-        var sensorAnalogico = new Chart(document.getElementById('sensorAnalogico').getContext('2d'), {
+        var nivelCO2= new Chart(document.getElementById('nivelCO2').getContext('2d'), {
             type: 'line',
             data: {
                 datasets: [{
@@ -106,8 +106,8 @@
         }
 
         setInterval(() => {
-            obterDados(sensorAnalogico, 'analogico');
-            obterDados(sensorDigital, 'digital');
+            obterDados(nivelCO2, 'analogico');
+            // obterDados(sensorDigital, 'digital');
         }, 1000);
 
     </script>

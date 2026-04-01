@@ -22,8 +22,6 @@ void loop() {
   }
 
   //Serial.print("Valor de Saída do sensor: ");
-  Serial.print(valorSensor);
-  Serial.print(";");
   //Serial.print(" -> Porcentagem: ");
   Serial.println(porcentagem);
   //Serial.println("%");

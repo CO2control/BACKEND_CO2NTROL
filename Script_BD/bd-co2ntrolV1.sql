@@ -102,11 +102,12 @@ INSERT INTO armazenamento (nome_identificador, fk_usuario, tipo, capacidade, uti
 
 INSERT INTO armazenamento (nome_identificador, fk_usuario, tipo, capacidade, utilizacao) 
 	VALUES ('Foudre de Carvalho F-01', 2, 'FOUDRE', 2000.00, 1);
+    
 
 -- 5. Inserindo Sensores
 -- Vinculados aos armazenamentos criados acima
 INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situacao) 
-	VALUES (1, 300.00, 800.00, 1);
+	VALUES (3, 300.00, 800.00, 1);
 
 INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situacao) 
 	VALUES (2, 400.00, 1000.00, 1);
