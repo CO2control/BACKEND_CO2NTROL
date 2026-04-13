@@ -111,6 +111,9 @@ INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situ
 
 INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situacao) 
 	VALUES (2, 400.00, 1000.00, 1);
+    
+    select * from leitura_sensor where nivel_carbono > 40;
+    
 
 -- 6. Inserindo Leituras de Sensores (Simulando capturas)
 INSERT INTO leitura_sensor (fk_sensor, nivel_carbono) 
