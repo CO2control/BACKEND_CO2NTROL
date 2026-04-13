@@ -21,7 +21,7 @@ const serial = async (
         {
             host: 'localhost',
             user: 'user_insert',
-            password: 'urubu100',
+            password: 'Urubu#100',
             database: 'co2ntrol',
             port: 3307
         }

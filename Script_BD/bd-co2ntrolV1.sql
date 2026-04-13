@@ -107,7 +107,7 @@ INSERT INTO armazenamento (nome_identificador, fk_usuario, tipo, capacidade, uti
 -- 5. Inserindo Sensores
 -- Vinculados aos armazenamentos criados acima
 INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situacao) 
-	VALUES (3, 300.00, 800.00, 1);
+	VALUES (1, 300.00, 800.00, 1);
 
 INSERT INTO sensor (fk_armazenamento, nivel_carbono_min, nivel_carbono_max, situacao) 
 	VALUES (2, 400.00, 1000.00, 1);
