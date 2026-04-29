@@ -132,10 +132,16 @@ SELECT COUNT(id) AS alertas_hoje FROM alerta
 	WHERE DATE(data_alerta) = CURDATE();
     
 -- Consulta que vê o nível de CO2 e o nome do tanque
-SELECT a.nome_identificador, l.nivel_carbono FROM leitura_sensor l
-	INNER JOIN sensor s ON l.fk_sensor = s.id
-	INNER JOIN armazenamento a ON s.fk_armazenamento = a.id
-		ORDER BY l.data_registro DESC LIMIT 5;
+SELECT 
+    a.nome_identificador, l.nivel_carbono
+FROM
+    leitura_sensor l
+        INNER JOIN
+    sensor s ON l.fk_sensor = s.id
+        INNER JOIN
+    armazenamento a ON s.fk_armazenamento = a.id
+ORDER BY l.data_registro DESC
+LIMIT 5;
         
 -- Consulta qu apenas os alertas "Críticos"
 SELECT mensagem, data_alerta FROM alerta
@@ -143,8 +149,21 @@ SELECT mensagem, data_alerta FROM alerta
 		ORDER BY data_alerta DESC;
         
 -- Consulta que mostra a quantidade de sensores ativos, comparado ao total
--- Explicação como definimos no bacno que 1 é ativo e 0 é inativo, somar a coluna inteira resulta exatamente no número de sensores ligados.
+-- Explicação como definimos no banco que 1 é ativo e 0 é inativo, somar a coluna inteira resulta exatamente no número de sensores ligados.
 SELECT SUM(situacao) AS ativos, COUNT(id) AS total FROM sensor;
 
 -- Consulta que mostra a quantidade de armazenamentos ativos, comparado ao total
 SELECT SUM(utilizacao) AS ativos, COUNT(id) AS total FROM armazenamento;
+
+-- Consulta a media de carbono por vinícola
+SELECT 
+    u.nome as "Vinicola" , ROUND(AVG(nivel_carbono), 2) as "Média de carbono por vinicola"
+FROM
+    leitura_sensor l
+        JOIN
+    sensor s ON l.fk_sensor = s.id
+        JOIN
+    armazenamento a ON a.id = s.fk_armazenamento
+        JOIN
+    usuario u ON u.id = a.fk_usuario
+GROUP BY u.nome; 
