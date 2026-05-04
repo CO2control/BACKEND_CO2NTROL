@@ -1,15 +1,26 @@
 CREATE DATABASE co2ntrol;
 USE co2ntrol;
 
--- Tabela de Usuario (Empresa/Filiais)
+-- Tabela Empresa
+CREATE TABLE empresa (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    razao_social VARCHAR(100),
+    cnpj CHAR(14),
+    codigo_ativacao VARCHAR(50),
+    fk_matriz INT,
+    CONSTRAINT fk_empresa_matriz 
+        FOREIGN KEY (fk_matriz) REFERENCES empresa(id)
+);
+
+-- Tabela de Usuario 
 CREATE TABLE usuario (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100),
     senha VARCHAR(200),
-    situacao TINYINT CHECK (situacao IN (0,1)) NOT NULL DEFAULT 1,
-    fk_matriz INT,
-    CONSTRAINT fk_usuario_matriz FOREIGN KEY (fk_matriz) REFERENCES usuario(id)
+    situacao TINYINT DEFAULT 1,
+    fk_empresa INT,
+    FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
 );
 
 -- Tabela telefone
@@ -76,21 +87,31 @@ CREATE TABLE alerta (
 -- INSERTS 
 
 -- 1. Empresas
-INSERT INTO usuario (nome, email, senha, situacao, fk_matriz) 
-    VALUES ('Vinícola Central Matriz', 'contato@central.com', 'hash_senha_123', 1, NULL);
+-- MATRIZ
+INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
+	VALUES ('Vinícola Central', '12345678000100', 'ABC123', NULL);
 
-INSERT INTO usuario (nome, email, senha, situacao, fk_matriz) 
-    VALUES ('Vinícola Filial Bento', 'bento@central.com', 'hash_senha_456', 1, 1);
+-- FILIAL
+INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
+	VALUES ('Vinícola Central Bento', '12345678000200', 'DEF456', 1);
+
+-- USUARIO
+INSERT INTO usuario (nome, email, senha, situacao, fk_empresa)
+	VALUES 
+		('Carlos Silva', 'carlos@central.com', 'hash1', 1, 1),
+		('Ana Souza', 'ana@bento.com', 'hash2', 1, 2);
 
 -- 2. Telefones
-INSERT INTO telefone (telefone, fk_usuario) 
-    VALUES ('11988887777', 1),
-           ('54999991111', 2);
+INSERT INTO telefone (telefone, fk_usuario)
+	VALUES 
+		('11988887777', 1),
+	('54999991111', 2);
 
 -- 3. Endereços
-INSERT INTO endereco (fk_usuario, cep, logradouro, numero, complemento, estado, municipio) 
-    VALUES (1, '01234000', 'Avenida Paulista', 1000, 'Andar 15', 'SP', 'São Paulo'),
-           (2, '95700000', 'Rua dos Vinhedos', 50, 'Galpão B', 'RS', 'Bento Gonçalves');
+INSERT INTO endereco (fk_usuario, cep, logradouro, numero, complemento, estado, municipio)
+	VALUES
+		(1, '01234000', 'Avenida Paulista', 1000, 'Andar 15', 'SP', 'São Paulo'),
+		(2, '95700000', 'Rua dos Vinhedos', 50, 'Galpão B', 'RS', 'Bento Gonçalves');
 
 -- 4. Armazenamentos
 INSERT INTO armazenamento (nome_identificador, fk_usuario, tipo, capacidade, utilizacao) 
@@ -113,19 +134,23 @@ INSERT INTO alerta (fk_sensor, mensagem, nivel)
     VALUES (2, 'Nível de CO2 acima do limite permitido no Foudre F-01!', 'CRITICO');
 
 -- Consulta para visualizar a Empresa principal e suas filhiais
-SELECT dono.nome AS "Empresa Principal", filial.nome AS "Empresas Filiais" FROM usuario dono
-	INNER JOIN usuario filial ON dono.id = filial.fk_matriz;
+SELECT matriz.razao_social AS matriz, filial.razao_social AS filial FROM empresa matriz
+	LEFT JOIN empresa filial ON matriz.id = filial.fk_matriz
+		WHERE matriz.fk_matriz IS NULL;
+        
+-- Consulta usuario, empresa e suas matrizes
+SELECT u.nome, e.razao_social AS empresa, matriz.razao_social AS matriz FROM usuario u
+	 INNER JOIN empresa e ON u.fk_empresa = e.id
+	LEFT JOIN empresa matriz ON e.fk_matriz = matriz.id;
 
-SELECT u.nome AS 'empresa', a.tipo AS 'tipo_tanque', s.nivel_carbono_max AS 'limite_max', 
-       l.nivel_carbono AS 'valor_lido', al.mensagem AS 'alerta', al.nivel AS 'Nível', 
-       al.data_alerta AS 'momento_do_erro' 
-FROM alerta al
-	INNER JOIN sensor s ON al.fk_sensor = s.id
-	INNER JOIN leitura_sensor l ON l.fk_sensor = s.id
-	INNER JOIN armazenamento a ON s.fk_armazenamento = a.id
-	INNER JOIN usuario u ON a.fk_usuario = u.id
-		WHERE al.nivel = 'CRITICO'
-			ORDER BY al.data_alerta DESC;
+SELECT  e.razao_social AS empresa, a.tipo AS tipo_tanque, s.nivel_carbono_max AS limite_max, l.nivel_carbono AS valor_lido,
+    al.mensagem AS alerta, al.nivel AS nivel_alerta, al.data_alerta AS momento_do_erro FROM alerta al
+		INNER JOIN sensor s ON al.fk_sensor = s.id
+		INNER JOIN armazenamento a ON s.fk_armazenamento = a.id
+		INNER JOIN usuario u ON a.fk_usuario = u.id
+		INNER JOIN empresa e ON u.fk_empresa = e.id
+		INNER JOIN leitura_sensor l ON l.fk_sensor = s.id
+WHERE al.nivel = 'CRITICO' ORDER BY al.data_alerta DESC;
             
 -- Consultas de alertas hoje.
 SELECT COUNT(id) AS alertas_hoje FROM alerta
