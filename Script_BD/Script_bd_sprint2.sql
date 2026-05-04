@@ -34,14 +34,15 @@ CREATE TABLE telefone (
 -- Tabela de endereço
 CREATE TABLE endereco (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    fk_usuario INT NOT NULL,
+    fk_empresa INT NOT NULL,
     cep CHAR(8) NOT NULL,
     logradouro VARCHAR(100) NOT NULL,
     numero INT,
     complemento VARCHAR(100),
     estado CHAR(2) NOT NULL,
     municipio VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_endereco_usuario FOREIGN KEY (fk_usuario) REFERENCES usuario(id)
+    CONSTRAINT fk_endereco_empresa 
+        FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
 );
 
 -- Tabela de armazenamento
@@ -108,7 +109,7 @@ INSERT INTO telefone (telefone, fk_usuario)
 	('54999991111', 2);
 
 -- 3. Endereços
-INSERT INTO endereco (fk_usuario, cep, logradouro, numero, complemento, estado, municipio)
+INSERT INTO endereco (fk_empresa, cep, logradouro, numero, complemento, estado, municipio)
 	VALUES
 		(1, '01234000', 'Avenida Paulista', 1000, 'Andar 15', 'SP', 'São Paulo'),
 		(2, '95700000', 'Rua dos Vinhedos', 50, 'Galpão B', 'RS', 'Bento Gonçalves');
@@ -142,6 +143,10 @@ SELECT matriz.razao_social AS matriz, filial.razao_social AS filial FROM empresa
 SELECT u.nome, e.razao_social AS empresa, matriz.razao_social AS matriz FROM usuario u
 	 INNER JOIN empresa e ON u.fk_empresa = e.id
 	LEFT JOIN empresa matriz ON e.fk_matriz = matriz.id;
+    
+-- Consulta da empresa e seu endereço
+SELECT e.razao_social, en.logradouro, en.numero, en.municipio, en.estado FROM empresa e
+	INNER JOIN endereco en ON en.fk_empresa = e.id;
 
 SELECT  e.razao_social AS empresa, a.tipo AS tipo_tanque, s.nivel_carbono_max AS limite_max, l.nivel_carbono AS valor_lido,
     al.mensagem AS alerta, al.nivel AS nivel_alerta, al.data_alerta AS momento_do_erro FROM alerta al
