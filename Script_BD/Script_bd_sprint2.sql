@@ -27,8 +27,8 @@ CREATE TABLE usuario (
 CREATE TABLE telefone (
     id INT PRIMARY KEY AUTO_INCREMENT,
     telefone CHAR(11),
-    fk_usuario INT, 
-    FOREIGN KEY (fk_usuario) REFERENCES usuario(id)
+    fk_empresa INT, 
+    FOREIGN KEY (fk_empresa) REFERENCES empresa(id) -- foi mudado para fk_empresa, pois estava em fk_usuario, porém entramos em contato com a empresa e não com um usuário específico
 );
 
 -- Tabela de endereço
@@ -48,15 +48,16 @@ CREATE TABLE endereco (
 -- Tabela de armazenamento
 CREATE TABLE armazenamento (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    nome_identificador VARCHAR(100),
-    fk_usuario INT NOT NULL,
+    nome_identificador VARCHAR(100), 
+    local_tanque varchar(100),  -- criei essa pensando em armazenar os locais em que os tanques estão
+    fk_empresa INT NOT NULL,
     tipo VARCHAR(20) CHECK (tipo IN ('FOUDRE', 'TANQUE')) NOT NULL,
     capacidade DECIMAL(10,2) NOT NULL,
     utilizacao TINYINT CHECK (utilizacao IN (0,1)) NOT NULL,
-    CONSTRAINT fk_armazenamento_usuario FOREIGN KEY (fk_usuario) REFERENCES usuario(id)
+    CONSTRAINT fk_armazenamento_usuario FOREIGN KEY (fk_empresa) REFERENCES empresa(id) -- mudando pra empresa também
 );
 
--- Tabela sensor
+-- Tabela sensor | lembrando que pensamos em medir o sensor a cada 10 minutos
 CREATE TABLE sensor (
     id INT PRIMARY KEY AUTO_INCREMENT,
     fk_armazenamento INT NOT NULL,
@@ -75,7 +76,7 @@ CREATE TABLE leitura_sensor (
     CONSTRAINT fk_leitura_sensor FOREIGN KEY (fk_sensor) REFERENCES sensor(id)
 );
 
--- Tabela de alerta
+-- Tabela de alerta 
 CREATE TABLE alerta (
     id INT PRIMARY KEY AUTO_INCREMENT,
     fk_sensor INT NOT NULL,
@@ -103,10 +104,10 @@ INSERT INTO usuario (nome, email, senha, situacao, fk_empresa)
 		('Ana Souza', 'ana@bento.com', 'hash2', 1, 2);
 
 -- 2. Telefones
-INSERT INTO telefone (telefone, fk_usuario)
+INSERT INTO telefone (telefone, fk_empresa)
 	VALUES 
 		('11988887777', 1),
-	('54999991111', 2);
+		('54999991111', 2);
 
 -- 3. Endereços
 INSERT INTO endereco (fk_empresa, cep, logradouro, numero, complemento, estado, municipio)
@@ -115,7 +116,7 @@ INSERT INTO endereco (fk_empresa, cep, logradouro, numero, complemento, estado, 
 		(2, '95700000', 'Rua dos Vinhedos', 50, 'Galpão B', 'RS', 'Bento Gonçalves');
 
 -- 4. Armazenamentos
-INSERT INTO armazenamento (nome_identificador, fk_usuario, tipo, capacidade, utilizacao) 
+INSERT INTO armazenamento (nome_identificador, fk_empresa, tipo, capacidade, utilizacao) 
     VALUES ('Tanque de Inox T-01', 1, 'TANQUE', 5000.00, 1),
            ('Foudre de Carvalho F-01', 2, 'FOUDRE', 2000.00, 1);
 
