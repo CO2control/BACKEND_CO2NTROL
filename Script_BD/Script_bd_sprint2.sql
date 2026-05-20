@@ -21,9 +21,6 @@ CREATE TABLE usuario (
     situacao TINYINT DEFAULT 1,
     fk_empresa INT,
     FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
-    situacao TINYINT DEFAULT 1,
-    fk_empresa INT,
-    FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
 );
 
 -- Tabela telefone
@@ -32,14 +29,11 @@ CREATE TABLE telefone (
     telefone CHAR(11),
     fk_empresa INT, 
     FOREIGN KEY (fk_empresa) REFERENCES empresa(id) -- foi mudado para fk_empresa, pois estava em fk_usuario, porém entramos em contato com a empresa e não com um usuário específico
-    fk_empresa INT, 
-    FOREIGN KEY (fk_empresa) REFERENCES empresa(id) -- foi mudado para fk_empresa, pois estava em fk_usuario, porém entramos em contato com a empresa e não com um usuário específico
 );
 
 -- Tabela de endereço
 CREATE TABLE endereco (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    fk_empresa INT NOT NULL,
     fk_empresa INT NOT NULL,
     cep CHAR(8) NOT NULL,
     logradouro VARCHAR(100) NOT NULL,
@@ -47,8 +41,6 @@ CREATE TABLE endereco (
     complemento VARCHAR(100),
     estado CHAR(2) NOT NULL,
     municipio VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_endereco_empresa 
-        FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
     CONSTRAINT fk_endereco_empresa 
         FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
 );
@@ -59,16 +51,12 @@ CREATE TABLE armazenamento (
     nome_identificador VARCHAR(100), 
     local_tanque varchar(100),  -- criei essa pensando em armazenar os locais em que os tanques estão
     fk_empresa INT NOT NULL,
-    nome_identificador VARCHAR(100), 
-    local_tanque varchar(100),  -- criei essa pensando em armazenar os locais em que os tanques estão
-    fk_empresa INT NOT NULL,
     tipo VARCHAR(20) CHECK (tipo IN ('FOUDRE', 'TANQUE')) NOT NULL,
     capacidade DECIMAL(10,2) NOT NULL,
     utilizacao TINYINT CHECK (utilizacao IN (0,1)) NOT NULL,
     CONSTRAINT fk_armazenamento_usuario FOREIGN KEY (fk_empresa) REFERENCES empresa(id) -- mudando pra empresa também
 );
 
--- Tabela sensor | lembrando que pensamos em medir o sensor a cada 10 minutos
 -- Tabela sensor | lembrando que pensamos em medir o sensor a cada 10 minutos
 CREATE TABLE sensor (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -88,7 +76,6 @@ CREATE TABLE leitura_sensor (
     CONSTRAINT fk_leitura_sensor FOREIGN KEY (fk_sensor) REFERENCES sensor(id)
 );
 
--- Tabela de alerta 
 -- Tabela de alerta 
 CREATE TABLE alerta (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -111,19 +98,7 @@ INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
 -- FILIAL
 INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
 	VALUES ('Vinícola Central Bento', '12345678000200', 'DEF456', 1);
--- MATRIZ
-INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
-	VALUES ('Vinícola Central', '12345678000100', 'ABC123', NULL);
 
--- FILIAL
-INSERT INTO empresa (razao_social, cnpj, codigo_ativacao, fk_matriz)
-	VALUES ('Vinícola Central Bento', '12345678000200', 'DEF456', 1);
-
--- USUARIO
-INSERT INTO usuario (nome, email, senha, situacao, fk_empresa)
-	VALUES 
-		('Carlos Silva', 'carlos@central.com', 'hash1', 1, 1),
-		('Ana Souza', 'ana@bento.com', 'hash2', 1, 2);
 -- USUARIO
 INSERT INTO usuario (nome, email, senha, situacao, fk_empresa)
 	VALUES 
@@ -135,16 +110,8 @@ INSERT INTO telefone (telefone, fk_empresa)
 	VALUES 
 		('11988887777', 1),
 		('54999991111', 2);
-INSERT INTO telefone (telefone, fk_empresa)
-	VALUES 
-		('11988887777', 1),
-		('54999991111', 2);
 
 -- 3. Endereços
-INSERT INTO endereco (fk_empresa, cep, logradouro, numero, complemento, estado, municipio)
-	VALUES
-		(1, '01234000', 'Avenida Paulista', 1000, 'Andar 15', 'SP', 'São Paulo'),
-		(2, '95700000', 'Rua dos Vinhedos', 50, 'Galpão B', 'RS', 'Bento Gonçalves');
 INSERT INTO endereco (fk_empresa, cep, logradouro, numero, complemento, estado, municipio)
 	VALUES
 		(1, '01234000', 'Avenida Paulista', 1000, 'Andar 15', 'SP', 'São Paulo'),
@@ -170,18 +137,6 @@ INSERT INTO alerta (fk_sensor, fk_leitura, mensagem, nivel)
     VALUES (2, 2, 'Nível de CO2 acima do limite permitido no Foudre F-03!', 'ALTO');
 
 -- Consulta para visualizar a Empresa principal e suas filhiais
-SELECT matriz.razao_social AS matriz, filial.razao_social AS filial FROM empresa matriz
-	LEFT JOIN empresa filial ON matriz.id = filial.fk_matriz
-		WHERE matriz.fk_matriz IS NULL;
-        
--- Consulta usuario, empresa e suas matrizes
-SELECT u.nome, e.razao_social AS empresa, matriz.razao_social AS matriz FROM usuario u
-	 INNER JOIN empresa e ON u.fk_empresa = e.id
-	LEFT JOIN empresa matriz ON e.fk_matriz = matriz.id;
-    
--- Consulta da empresa e seu endereço
-SELECT e.razao_social, en.logradouro, en.numero, en.municipio, en.estado FROM empresa e
-	INNER JOIN endereco en ON en.fk_empresa = e.id;
 SELECT matriz.razao_social AS matriz, filial.razao_social AS filial FROM empresa matriz
 	LEFT JOIN empresa filial ON matriz.id = filial.fk_matriz
 		WHERE matriz.fk_matriz IS NULL;
