@@ -13,18 +13,6 @@ CREATE TABLE empresa (
 );
 
 -- Tabela de Usuario 
--- Tabela Empresa
-CREATE TABLE empresa (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    razao_social VARCHAR(100),
-    cnpj CHAR(14),
-    codigo_ativacao VARCHAR(50),
-    fk_matriz INT,
-    CONSTRAINT fk_empresa_matriz 
-        FOREIGN KEY (fk_matriz) REFERENCES empresa(id)
-);
-
--- Tabela de Usuario 
 CREATE TABLE usuario (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
