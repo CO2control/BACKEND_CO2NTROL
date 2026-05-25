@@ -181,3 +181,16 @@ SELECT SUM(situacao) AS ativos, COUNT(id) AS total FROM sensor;
 
 -- Consulta que mostra a quantidade de armazenamentos ativos, comparado ao total
 SELECT SUM(utilizacao) AS ativos, COUNT(id) AS total FROM armazenamento;
+
+CREATE VIEW vw_dashboard
+AS
+SELECT 
+	ls.id,
+    ls.nivel_carbono,
+    ls.data_registro,
+    s.fk_armazenamento,
+    a.fk_empresa
+FROM leitura_sensor ls
+JOIN sensor s ON s.id = ls.fk_sensor
+JOIN armazenamento a ON a.id = s.fk_armazenamento
+JOIN empresa e ON e.id = a.fk_empresa;
