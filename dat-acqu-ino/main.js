@@ -20,10 +20,10 @@ const serial = async (
     let poolBancoDados = mysql.createPool(
         {
             host: 'localhost',
-            user: 'user_insert',
-            password: 'Urubu#100',
+            user: 'aluno',
+            password: 'sptech',
             database: 'co2ntrol',
-            port: 3307
+            port: 3306
         }
     ).promise();
 
@@ -67,11 +67,46 @@ const serial = async (
                 'INSERT INTO leitura_sensor (nivel_carbono, fk_sensor) VALUES (?, 2)',
                 [nivelCO2]
             );
-            console.log("valores inseridos no banco: ", nivelCO2);
+
+
+
+            if (nivelCO2 < 20 || nivelCO2 > 40) {
+
+                let fkLeitura = await poolBancoDados.execute(
+                    'select id from leitura_sensor order by data_registro desc limit 1'
+                );
+
+                fkLeitura = fkLeitura[0][0].id;
+
+                console.log("FK da leitura", fkLeitura);
+
+
+                let nivelAlerta = definirNivel(nivelCO2);
+
+                await poolBancoDados.execute(
+                    `INSERT INTO alerta (fk_sensor, fk_leitura, nivel) VALUES (2, ${fkLeitura}, '${nivelAlerta}');`,
+                    [nivelAlerta]
+                );
+
+                console.log("valores inseridos no banco: ", nivelAlerta);
+            }
 
         }
 
+
     });
+
+
+    function definirNivel(co2) {
+
+        if (co2 <= 5 || co2 >= 55) {
+            return "CRITICO";
+        } else if (co2 <= 10 || co2 >= 50) {
+            return "ALTO";
+        } else {
+            return "BAIXO";
+        }
+    }
 
     // evento para lidar com erros na comunicação serial
     arduino.on('error', (mensagem) => {
