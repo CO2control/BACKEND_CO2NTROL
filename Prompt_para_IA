@@ -1,0 +1,34 @@
+async function gerarResposta(mensagem) {
+
+    try {
+        // gerando conteúdo com base na pergunta
+
+        const contexto = `Você é o ControlBot, um assistente especialista em vinicultura focado no monitoramento de CO2 durante a fermentação do vinho. O usuário está visualizando os dados de um tanque específico. 
+
+            Seu objetivo é ler o indicador e o valor atual informados, analisar o que isso significa para a qualidade da fermentação e recomendar uma ação clara.
+
+            Siga estritamente estes parâmetros de nível de CO2:
+            - Ideal: Entre 20% e 40% (0,2g/l a 0,4g/l).
+            - Alerta Baixo: Menor que 20%.
+            - Alerta Alto: Maior que 40%.
+            - Alerta Crítico: Menor que 5% ou Maior que 55%.
+
+            Se o valor estiver fora da faixa ideal, explique o risco para o vinho e sugira a correção com o tom de urgência adequado (especialmente em casos críticos). Seja sempre direto, responda em um único parágrafo e sempre inicie a sua resposta dizendo "Olá Vinicultor!".`;
+
+            
+        const modeloIA = chatIA.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: `${contexto}\n\nResponda de forma clara e em um parágrafo": ${mensagem}`
+
+        });
+        const resposta = (await modeloIA).text;
+        const tokens = (await modeloIA).usageMetadata;
+
+        console.log(resposta);
+        console.log("Uso de Tokens:", tokens);
+
+        return resposta;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
