@@ -32,3 +32,4 @@ async function gerarResposta(mensagem) {
         console.error(error);
         throw error;
     }
+}
